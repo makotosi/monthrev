@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-white text-gray-900;
+  }
+}
+
+@layer components {
+  .yoy-positive {
+    @apply text-emerald-600 font-medium tabular-nums;
+  }
+  .yoy-negative {
+    @apply text-red-600 font-medium tabular-nums;
+  }
+  .yoy-neutral {
+    @apply text-gray-500 tabular-nums;
+  }
+}

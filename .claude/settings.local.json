@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(chmod +x /Users/shiraishimakoto/claude/monthrev/supabase/seed/reset_and_seed.sh)",
+      "Bash(yes \"\" | npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm 2>&1)",
+      "Bash(npm install 2>&1)",
+      "Bash(npm run build 2>&1)",
+      "Bash(npm install papaparse @types/papaparse 2>&1)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/companies/3001 && echo \"\" && \\\\\ncurl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/admin && echo \"\" && \\\\\ncurl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/companies/9999)",
+      "WebSearch",
+      "WebFetch(domain:www.nippon-num.com)",
+      "WebFetch(domain:www.fastretailing.com)",
+      "WebFetch(domain:ir.skylark.co.jp)",
+      "WebFetch(domain:www.mcd-holdings.co.jp)"
+    ]
+  }
+}
