@@ -235,6 +235,7 @@ export default function AdminImportPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [status, setStatus] = useState<ImportStatus>("idle");
   const [importedCount, setImportedCount] = useState(0);
+  const [importError, setImportError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validRows = parsedRows.filter((r) => r._rowErrors.length === 0);
@@ -292,22 +293,34 @@ export default function AdminImportPage() {
     [handleFile]
   );
 
-  // ── インポート実行（モック）───────────────────────────────────────────
+  // ── インポート実行 ─────────────────────────────────────────────────
   const handleImport = useCallback(async () => {
     if (validRows.length === 0) return;
     setStatus("importing");
+    setImportError(null);
 
-    // モック：800ms 待機後に console.log
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    try {
+      const res = await fetch("/api/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(validRows),
+      });
+      const json = await res.json();
 
-    // eslint-disable-next-line no-console
-    console.log(
-      "[月次売上.com] CSVインポート（モック）",
-      JSON.stringify(validRows, null, 2)
-    );
+      if (!res.ok) {
+        setImportError(json.error ?? "インポートに失敗しました");
+        setStatus("error");
+        return;
+      }
 
-    setImportedCount(validRows.length);
-    setStatus("success");
+      setImportedCount(json.count);
+      setStatus("success");
+    } catch (e) {
+      setImportError(
+        e instanceof Error ? e.message : "ネットワークエラーが発生しました"
+      );
+      setStatus("error");
+    }
   }, [validRows]);
 
   // ── リセット ────────────────────────────────────────────────────────
@@ -317,6 +330,7 @@ export default function AdminImportPage() {
     setMissingCols([]);
     setParseError(null);
     setStatus("idle");
+    setImportError(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -340,9 +354,8 @@ export default function AdminImportPage() {
         <div className="text-sm">
           <p className="font-semibold text-amber-800">管理者専用ページ</p>
           <p className="text-amber-700 mt-0.5">
-            現在は<strong>モックモード</strong>で動作しています。
-            インポート実行してもデータベースへの書き込みは行われません。
-            パースしたJSONはブラウザのコンソールに出力されます。
+            インポートを実行すると、データベースへ直接書き込みが行われます。
+            操作は慎重に行ってください。
           </p>
         </div>
       </div>
@@ -555,15 +568,22 @@ export default function AdminImportPage() {
                   <IconCheck />
                   <div>
                     <p className="font-semibold text-emerald-800">
-                      インポート成功（モック）
+                      インポート完了
                     </p>
                     <p className="text-sm text-emerald-700 mt-0.5">
-                      {importedCount}件のデータを処理しました
+                      {importedCount}件のデータをデータベースに保存しました
                     </p>
-                    <p className="text-xs text-emerald-500 mt-1">
-                      ※ モックモードのためDBへの書き込みは行われていません。
-                      ブラウザのコンソール（F12）でパース内容を確認してください。
-                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* エラーメッセージ */}
+              {status === "error" && importError && (
+                <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-4 flex items-start gap-3">
+                  <IconWarning />
+                  <div>
+                    <p className="font-semibold text-red-800">インポート失敗</p>
+                    <p className="text-sm text-red-700 mt-0.5">{importError}</p>
                   </div>
                 </div>
               )}
@@ -584,6 +604,8 @@ export default function AdminImportPage() {
                       ? "bg-emerald-500 text-white cursor-default"
                       : validRows.length === 0
                       ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                      : status === "error"
+                      ? "bg-red-600 text-white hover:bg-red-700 shadow-sm"
                       : "bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
                   }`}
                 >
@@ -597,6 +619,8 @@ export default function AdminImportPage() {
                     </>
                   ) : status === "success" ? (
                     <>✓ 完了</>
+                  ) : status === "error" ? (
+                    `再試行（${validRows.length}件）`
                   ) : (
                     `インポート実行（${validRows.length}件）`
                   )}

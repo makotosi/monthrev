@@ -11,7 +11,8 @@
       "WebFetch(domain:www.nippon-num.com)",
       "WebFetch(domain:www.fastretailing.com)",
       "WebFetch(domain:ir.skylark.co.jp)",
-      "WebFetch(domain:www.mcd-holdings.co.jp)"
+      "WebFetch(domain:www.mcd-holdings.co.jp)",
+      "Bash(npx tsc --noEmit 2>&1)"
     ]
   }
 }
