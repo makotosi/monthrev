@@ -25,8 +25,7 @@ function getServiceClient() {
       "環境変数 SUPABASE_SERVICE_ROLE_KEY が設定されていません。.env.local を確認してください。"
     );
   }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return createClient<any>(url, key, {
+  return createClient(url, key, {
     auth: { persistSession: false },
   });
 }
